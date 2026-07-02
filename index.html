@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Felicidades, Drako!</title>
+
+  <style>
+    :root {
+      --bg: #111827;
+      --text-main: #ffffff;
+      --text-accent: #facc15;
+      --text-danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(250, 204, 21, 0.25), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(239, 68, 68, 0.25), transparent 35%),
+        var(--bg);
+      color: var(--text-main);
+    }
+
+    .intro {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(17, 24, 39, 0.92);
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .intro.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .intro__card {
+      max-width: 620px;
+      padding: 2rem;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 1.5rem;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(0.5rem);
+    }
+
+    .intro h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1;
+    }
+
+    .intro p {
+      margin: 0 0 1.5rem;
+      font-size: 1.125rem;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .intro button,
+    .restart {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.4rem;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      color: #111827;
+      background: #facc15;
+      box-shadow: 0 0.8rem 2rem rgba(250, 204, 21, 0.25);
+      transition: transform 0.2s ease, filter 0.2s ease, opacity 0.25s ease;
+    }
+
+    .intro button:hover,
+    .restart:hover {
+      transform: translateY(-2px) scale(1.03);
+      filter: brightness(1.05);
+    }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .troll-text {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      z-index: var(--z);
+      display: inline-block;
+      white-space: nowrap;
+      line-height: 0.95;
+      font-size: var(--size);
+      font-weight: var(--weight);
+      color: var(--color);
+      opacity: 0;
+      text-shadow: var(--shadow);
+      transform:
+        translate(-50%, -50%)
+        rotate(var(--rotation))
+        scale(0.4);
+      animation: popIn var(--speed) cubic-bezier(.17,.67,.25,1.4) forwards;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .level-1 {
+      letter-spacing: -0.03em;
+    }
+
+    .level-2 {
+      padding: 0.25em 0.35em;
+      border-radius: 0.18em;
+      background: rgba(17, 24, 39, 0.86);
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+      border: 0.04em solid rgba(250, 204, 21, 0.65);
+      mix-blend-mode: normal;
+    }
+
+    .level-3 {
+      letter-spacing: -0.12em;
+      text-transform: uppercase;
+      mix-blend-mode: normal;
+    }
+
+    .waifu-img {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      z-index: var(--z);
+      width: var(--width);
+      max-width: 42vw;
+      height: auto;
+      opacity: 0;
+      transform:
+        translate(-50%, -50%)
+        rotate(var(--rotation))
+        scale(0.3);
+      filter: drop-shadow(0 1rem 1.5rem rgba(0, 0, 0, 0.65));
+      animation: waifuPop var(--speed) cubic-bezier(.17,.67,.25,1.4) forwards;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .panic {
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.6) rotate(-8deg);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .panic.is-visible {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    .panic span {
+      font-size: clamp(7rem, 28vw, 22rem);
+      font-weight: 1000;
+      line-height: 0.75;
+      color: #ef4444;
+      text-shadow:
+        0.06em 0.06em 0 #facc15,
+        0.1em 0.1em 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .restart {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 10000;
+      padding: 0.7rem 1rem;
+      background: rgba(255, 255, 255, 0.92);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .restart.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(0.4);
+      }
+
+      70% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(1);
+      }
+    }
+
+    @keyframes waifuPop {
+      0% {
+        opacity: 0;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(0.3);
+      }
+
+      70% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(1.1);
+      }
+
+      100% {
+        opacity: 1;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--rotation))
+          scale(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .intro__card {
+        padding: 1.5rem;
+      }
+
+      .level-2 {
+        max-width: 95vw;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .waifu-img {
+        max-width: 58vw;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="intro" id="intro">
+    <div class="intro__card">
+      <h1>🎂 Sorpresa para Drako</h1>
+      <p>Una felicitación elegante, madura y absolutamente nada sospechosa.</p>
+      <button type="button" id="startButton">Empezar felicitación</button>
+    </div>
+  </section>
+
+  <main class="stage" id="stage" aria-live="polite"></main>
+
+  <div class="panic" id="panic" aria-hidden="true">
+    <span>30</span>
+  </div>
+
+  <button class="restart" type="button" id="restartButton">Repetir troleo</button>
+
+  <script>
+    const stage = document.querySelector('#stage');
+    const intro = document.querySelector('#intro');
+    const panic = document.querySelector('#panic');
+    const startButton = document.querySelector('#startButton');
+    const restartButton = document.querySelector('#restartButton');
+
+    const timers = [];
+
+    const waifus = [
+      'img/waifu-1.svg',
+      'img/waifu-2.svg',
+      'img/waifu-3.svg',
+      'img/waifu-4.svg',
+      'img/waifu-5.svg',
+      'img/waifu-6.svg'
+    ];
+
+    const random = (min, max) => Math.random() * (max - min) + min;
+
+    const randomItem = (items) => items[Math.floor(Math.random() * items.length)];
+
+    const addWaifu = (z = 300) => {
+      const image = document.createElement('img');
+
+      image.className = 'waifu-img';
+      image.src = randomItem(waifus);
+      image.alt = '';
+      image.setAttribute('aria-hidden', 'true');
+
+      image.style.setProperty('--x', `${random(-4, 104)}vw`);
+      image.style.setProperty('--y', `${random(-4, 104)}vh`);
+      image.style.setProperty('--z', z);
+      image.style.setProperty('--width', `${random(9, 17)}rem`);
+      image.style.setProperty('--speed', `${random(0.22, 0.42)}s`);
+      image.style.setProperty('--rotation', `${random(-24, 24)}deg`);
+
+      stage.appendChild(image);
+    };
+
+    const addText = ({
+      text,
+      className,
+      size,
+      weight,
+      color,
+      z,
+      shadow,
+      speed = '0.35s',
+      rotationRange = 18
+    }) => {
+      const item = document.createElement('span');
+
+      item.className = `troll-text ${className}`;
+      item.textContent = text;
+
+      item.style.setProperty('--x', `${random(-5, 105)}vw`);
+      item.style.setProperty('--y', `${random(-5, 105)}vh`);
+      item.style.setProperty('--z', z);
+      item.style.setProperty('--size', size);
+      item.style.setProperty('--weight', weight);
+      item.style.setProperty('--color', color);
+      item.style.setProperty('--shadow', shadow);
+      item.style.setProperty('--speed', speed);
+      item.style.setProperty('--rotation', `${random(-rotationRange, rotationRange)}deg`);
+
+      stage.appendChild(item);
+      addWaifu(Number(z) + 1);
+    };
+
+    const addLevelOne = () => {
+      addText({
+        text: '¡Felicidades, Drako!',
+        className: 'level-1',
+        size: `${random(2.8, 3.5)}rem`,
+        weight: 700,
+        color: randomItem(['#ffffff', '#fef3c7', '#fde68a']),
+        z: 10,
+        shadow: '0 0.15em 0.35em rgba(0, 0, 0, 0.35)',
+        speed: '0.45s',
+        rotationRange: 12
+      });
+    };
+
+    const addLevelTwo = () => {
+      addText({
+        text: '¡Oh! Wow... 27 son casi...',
+        className: 'level-2',
+        size: `${random(5.6, 7.2)}rem`,
+        weight: 1000,
+        color: randomItem(['#facc15', '#ffffff', '#fde047']),
+        z: 500,
+        shadow: '0 0.08em 0 #ef4444, 0 0.16em 0 #111827, 0 0.32em 0.7em rgba(0, 0, 0, 0.8)',
+        speed: '0.24s',
+        rotationRange: 14
+      });
+    };
+
+    const addLevelThree = () => {
+      addText({
+        text: '30',
+        className: 'level-3',
+        size: `${random(7, 14)}rem`,
+        weight: 1000,
+        color: randomItem(['#ef4444', '#dc2626', '#facc15']),
+        z: 1000,
+        shadow: '0.05em 0.05em 0 #111827, 0.09em 0.09em 0 rgba(250, 204, 21, 0.9)',
+        speed: '0.22s',
+        rotationRange: 28
+      });
+    };
+
+    const setRepeatedAction = (action, interval) => {
+      const timer = setInterval(action, interval);
+      timers.push(timer);
+      return timer;
+    };
+
+    const setDelayedAction = (action, delay) => {
+      const timer = setTimeout(action, delay);
+      timers.push(timer);
+      return timer;
+    };
+
+    const clearAllTimers = () => {
+      timers.forEach((timer) => {
+        clearInterval(timer);
+        clearTimeout(timer);
+      });
+
+      timers.length = 0;
+    };
+
+    const reset = () => {
+      clearAllTimers();
+      stage.innerHTML = '';
+      panic.classList.remove('is-visible');
+      restartButton.classList.remove('is-visible');
+      intro.classList.remove('is-hidden');
+    };
+
+    const start = () => {
+      reset();
+      intro.classList.add('is-hidden');
+
+      for (let i = 0; i < 14; i++) {
+        setDelayedAction(addLevelOne, i * 120);
+      }
+
+      const levelOneTimer = setRepeatedAction(addLevelOne, 170);
+
+      setDelayedAction(() => {
+        clearInterval(levelOneTimer);
+
+        for (let i = 0; i < 12; i++) {
+          setDelayedAction(addLevelTwo, i * 90);
+        }
+
+        const levelTwoTimer = setRepeatedAction(addLevelTwo, 120);
+
+        setDelayedAction(() => {
+          clearInterval(levelTwoTimer);
+          panic.classList.add('is-visible');
+
+          for (let i = 0; i < 18; i++) {
+            setDelayedAction(addLevelThree, i * 45);
+          }
+
+          const levelThreeTimer = setRepeatedAction(addLevelThree, 65);
+
+          setDelayedAction(() => {
+            clearInterval(levelThreeTimer);
+            restartButton.classList.add('is-visible');
+          }, 4200);
+        }, 6200);
+      }, 5200);
+    };
+
+    startButton.addEventListener('click', start);
+    restartButton.addEventListener('click', start);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        reset();
+      }
+    });
+  </script>
+</body>
+</html>
